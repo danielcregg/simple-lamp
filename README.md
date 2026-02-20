@@ -1,80 +1,104 @@
 # Simple LAMP Web Application
 
-If you are using Ubuntu 14.04, install the following software:
+![PHP](https://img.shields.io/badge/PHP-777BB4?style=flat-square&logo=php&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=flat-square&logo=mysql&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black)
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5&logoColor=white)
+![AWS](https://img.shields.io/badge/AWS-232F3E?style=flat-square&logo=amazonwebservices&logoColor=white)
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)
 
-~~~~
-$ sudo apt-get update
-$ sudo apt-get install git mysql-server
-$ sudo apt-get install apache2 php5 php5-mysql php5-curl php5-memcached
-$ sudo service apache2 restart
-~~~~
+> **Note:** This repository is a fork of [qyjohn/simple-lamp](https://github.com/qyjohn/simple-lamp).
 
-If you are using Ubuntu 16.04, the software installation part is a little bit different:
+A minimal LAMP stack web application demonstrating user login, image uploading, MySQL-backed storage, and optional Memcached caching.
 
-~~~~
-$ sudo apt-get update
-$ sudo apt-get install git mysql-server
-$ sudo apt-get install apache2 php libapache2-mod-php php-mcrypt php-mysql php-curl php-xml php-memcached
-$ sudo service apache2 restart
-~~~~
+## Overview
 
-Then we clone the source code from git repository. Here we assume that you are using "ubuntu:ubuntu" as the Linux username and group name. 
+This project provides a straightforward PHP-based web application running on a Linux/Apache/MySQL/PHP (LAMP) stack. Users can log in with a username, upload image files (JPG, PNG, GIF), and view the most recently uploaded images on the front page. The application supports configurable storage backends (local hard disk or Amazon S3), optional Memcached-based session sharing and front page caching, and simulated latency for testing purposes. It is designed as a teaching tool for scalable web architecture concepts.
 
-~~~~
-$ cd /var
-$ sudo chown -R ubuntu:ubuntu www
-$ cd /var/www/html
-$ git clone https://github.com/qyjohn/simple-lamp
-~~~~
+## Features
 
-Then we create a MySQL database and a MySQL user for our demo. Here we use “web_demo” as the database name, and “username” as the MySQL user.
+- **User login/logout** with PHP session management
+- **Image upload** with client-side and server-side file type validation
+- **MySQL database** for tracking uploaded image metadata with timestamps
+- **Local or S3 storage** -- configurable storage backend for uploaded files
+- **Memcached support** -- optional session sharing and front page caching
+- **Latency simulation** -- configurable delay for performance testing
+- **Pre-loaded demo data** -- includes sample images and SQL dump for quick setup
 
-~~~~
-$ mysql -u root -p
-mysql> CREATE DATABASE simple_lamp;
-mysql> CREATE USER 'username'@'localhost' IDENTIFIED BY 'password';
-mysql> GRANT ALL PRIVILEGES ON simple_lamp.* TO 'username'@'localhost';
-mysql> quit
-~~~~
+## Prerequisites
 
-In the code you clone from Github, we have pre-populated some demo data as examples. We use the following command to import the demo data in web_demo.sql to the web_demo database:
+- **Ubuntu 14.04 or 16.04+** (or any Linux distribution with Apache, PHP, and MySQL)
+- **Apache 2** web server
+- **PHP 5.x or 7.x** with extensions: `php-mysql`, `php-curl`, `php-memcached`
+- **MySQL 5.5+**
+- **Memcached** (optional, for caching and session sharing)
 
-~~~~
-$ cd /var/www/html/simple-lamp
-$ mysql -u username -p simple_lamp < simple_lamp.sql
-~~~~
+## Getting Started
 
-Before we can make it work, there are some minor modifications needed:
+### Installation
 
-(1) Use a text editor to open config.php, then change the username and password for your MySQL installation.
+1. Install the LAMP stack:
 
-(2) Change the ownership of folder “uploads” to “www-data” so that Apache can upload files to this folder.
+```bash
+sudo apt-get update
+sudo apt-get install git mysql-server
+sudo apt-get install apache2 php libapache2-mod-php php-mysql php-curl php-xml php-memcached
+sudo service apache2 restart
+```
 
-~~~~
-$cd /var/www/html/simple-lamp
-$ sudo chown -R www-data:www-data uploads
-~~~~
+2. Clone the repository into your web server directory:
 
-In your browser, browse to http://ip-address/simple-lamp/index.php. You should see that our application is now working. 
+```bash
+cd /var/www/html
+git clone https://github.com/danielcregg/simple-lamp.git
+```
 
-To enable session sharing using MemCached, edit /etc/php5/apache2/php.ini (Ubuntu 14.04) or /etc/php/7.0/apache2/php.ini (Ubuntu 16.04), with the following modifications:
+3. Create the MySQL database and user:
 
-~~~~
-session.save_handler = memcached
-session.save_path = "dns-or-ip-of-memcached-server:11211"
-~~~~
+```sql
+mysql -u root -p
+CREATE DATABASE simple_lamp;
+CREATE USER 'username'@'localhost' IDENTIFIED BY 'password';
+GRANT ALL PRIVILEGES ON simple_lamp.* TO 'username'@'localhost';
+quit
+```
 
-Then you need to restart Apache on both web servers to make the new configuration effective.
+4. Import the demo data:
 
-~~~~
-$ sudo service apache2 restart
-~~~~
+```bash
+cd /var/www/html/simple-lamp
+mysql -u username -p simple_lamp < simple_lamp.sql
+```
 
-To enable front page caching using MemCached, edit config.php and update the following line:
+5. Update `config.php` with your MySQL credentials.
 
-~~~~
-// Cache configuration
-$enable_cache = true;
-$cache_server = "dns-or-ip-of-memcached-server";
-~~~~
+6. Set the uploads directory permissions:
 
+```bash
+sudo chown -R www-data:www-data uploads
+```
+
+### Usage
+
+Open your browser and navigate to:
+
+```
+http://localhost/simple-lamp/index.php
+```
+
+Enter any username to log in, then upload images using the file upload form. The most recent 10 uploads are displayed on the front page.
+
+To enable Memcached caching, set `$enable_cache = true` and configure `$cache_server` in `config.php`.
+
+## Tech Stack
+
+- **Language:** PHP, JavaScript
+- **Database:** MySQL
+- **Web Server:** Apache 2
+- **Caching:** Memcached (optional)
+- **Cloud Storage:** Amazon S3 (optional)
+- **OS:** Ubuntu Linux
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
